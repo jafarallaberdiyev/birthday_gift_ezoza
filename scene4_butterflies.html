@@ -1,0 +1,1463 @@
+<!DOCTYPE html>
+<html lang="en" data-style="sakura">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>The Butterfly Sanctuary · Realistic 3D Botanical Sanctuary</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🦋</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400;1,600&family=Fira+Code:wght@300;400&family=Montserrat:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+
+<!-- Three.js + OrbitControls -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+<style>
+/* ==========================================================================
+   TIMELESS BOTANICAL AESTHETICS & THEMES
+   ========================================================================== */
+:root {
+    --ink: #04060a;
+    --cream: #fdfaf6;
+    --accent: #38bdf8;
+    --accent-glow: rgba(56, 189, 248, 0.4);
+    --gold: #fbbf24;
+    --card-bg: rgba(8, 14, 24, 0.8);
+    --border-line: rgba(255, 255, 255, 0.15);
+    --serif: 'Cormorant Garamond', Iowan Old Style, Georgia, serif;
+    --mono: 'Fira Code', monospace;
+    --sans: 'Montserrat', sans-serif;
+    --halo: radial-gradient(circle at 50% 40%, rgba(56, 189, 248, 0.15), rgba(168, 85, 247, 0.05) 50%, transparent 75%);
+}
+
+[data-style="monarch"] {
+    --ink: #080401;
+    --cream: #fffaf0;
+    --accent: #f97316;
+    --accent-glow: rgba(249, 115, 22, 0.4);
+    --gold: #fde047;
+    --card-bg: rgba(24, 12, 4, 0.82);
+    --border-line: rgba(249, 115, 22, 0.25);
+    --halo: radial-gradient(circle at 50% 40%, rgba(249, 115, 22, 0.18), rgba(234, 88, 12, 0.06) 50%, transparent 75%);
+}
+
+[data-style="sakura"] {
+    --ink: #090306;
+    --cream: #fff5f8;
+    --accent: #f472b6;
+    --accent-glow: rgba(244, 114, 182, 0.4);
+    --gold: #fbcfe8;
+    --card-bg: rgba(24, 8, 18, 0.82);
+    --border-line: rgba(244, 114, 182, 0.25);
+    --halo: radial-gradient(circle at 50% 40%, rgba(244, 114, 182, 0.18), rgba(251, 146, 60, 0.06) 50%, transparent 75%);
+}
+
+[data-style="emerald"] {
+    --ink: #020804;
+    --cream: #f0fdf4;
+    --accent: #10b981;
+    --accent-glow: rgba(16, 185, 129, 0.4);
+    --gold: #6ee7b7;
+    --card-bg: rgba(3, 20, 10, 0.82);
+    --border-line: rgba(16, 185, 129, 0.25);
+    --halo: radial-gradient(circle at 50% 40%, rgba(16, 185, 129, 0.18), rgba(6, 182, 212, 0.06) 50%, transparent 75%);
+}
+
+/* ==========================================================================
+   RESET & STAGE
+   ========================================================================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    height: 100dvh;
+    overflow: hidden;
+    background-color: var(--ink);
+    color: var(--cream);
+    font-family: var(--sans);
+    user-select: none;
+    -webkit-font-smoothing: antialiased;
+    transition: background-color 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+#canvas3d {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    cursor: grab;
+}
+
+#canvas3d:active {
+    cursor: grabbing;
+}
+
+.lightHalo {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 2;
+    background: var(--halo);
+    opacity: 0.9;
+    transition: background 1.2s ease;
+}
+
+.vignetteOverlay {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 3;
+    background: radial-gradient(circle at center, transparent 45%, rgba(0,0,0,0.85) 100%);
+}
+
+/* ==========================================================================
+   POETIC HEADER & CONTROLS
+   ========================================================================== */
+.topBar {
+    position: fixed;
+    top: 24px;
+    left: 28px;
+    right: 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 20;
+    pointer-events: none;
+}
+
+.brandSign {
+    display: flex;
+    flex-direction: column;
+    pointer-events: auto;
+}
+
+.brandTitle {
+    font-family: var(--serif);
+    font-size: clamp(22px, 4vw, 34px);
+    font-weight: 400;
+    letter-spacing: 0.06em;
+    color: var(--cream);
+    text-shadow: 0 0 25px rgba(255,255,255,0.25);
+}
+
+.brandSubtitle {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 14px;
+    color: var(--accent);
+    opacity: 0.95;
+    letter-spacing: 0.04em;
+    margin-top: -2px;
+}
+
+.navControls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    pointer-events: auto;
+}
+
+.styleSelector {
+    display: flex;
+    gap: 6px;
+    background: var(--card-bg);
+    padding: 5px 8px;
+    border-radius: 100px;
+    border: 1px solid var(--border-line);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    box-shadow: 0 0 20px rgba(0,0,0,0.4);
+}
+
+.stylePill {
+    background: transparent;
+    border: 1px solid transparent;
+    color: var(--cream);
+    font-family: var(--serif);
+    font-size: 14px;
+    padding: 6px 15px;
+    border-radius: 100px;
+    cursor: pointer;
+    opacity: 0.75;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.stylePill:hover {
+    opacity: 1;
+    color: var(--accent);
+}
+
+.stylePill.active {
+    opacity: 1;
+    background: rgba(255,255,255,0.12);
+    border-color: var(--border-line);
+    color: #ffffff;
+    box-shadow: 0 0 14px var(--accent-glow);
+}
+
+.audioBtn {
+    background: var(--card-bg);
+    border: 1px solid var(--border-line);
+    color: var(--cream);
+    padding: 9px 18px;
+    border-radius: 100px;
+    font-family: var(--sans);
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    font-weight: 500;
+    cursor: pointer;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    transition: all 0.25s ease;
+}
+
+.audioBtn:hover {
+    border-color: var(--accent);
+    box-shadow: 0 0 16px var(--accent-glow);
+}
+
+/* ==========================================================================
+   BOTTOM DOCK CONTROLS
+   ========================================================================== */
+.bottomDock {
+    position: fixed;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    z-index: 20;
+    pointer-events: auto;
+    width: max-content;
+    max-width: 94vw;
+}
+
+.botanicalBtn {
+    background: var(--card-bg);
+    border: 1px solid var(--border-line);
+    color: var(--cream);
+    padding: 13px 26px;
+    border-radius: 100px;
+    font-family: var(--serif);
+    font-size: 16px;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    box-shadow: 0 0 25px rgba(0,0,0,0.5);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+}
+
+.botanicalBtn:hover {
+    border-color: var(--accent);
+    background: rgba(255,255,255,0.08);
+    box-shadow: 0 0 35px var(--accent-glow);
+    transform: translateY(-2px);
+}
+
+.botanicalBtn:active { transform: translateY(1px); }
+
+.guideCaption {
+    position: fixed;
+    bottom: 86px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 14.5px;
+    color: var(--cream);
+    opacity: 0.75;
+    z-index: 15;
+    pointer-events: none;
+    text-align: center;
+    white-space: nowrap;
+    letter-spacing: 0.03em;
+}
+
+/* ==========================================================================
+   DEDICATION & GIFT MODAL
+   ========================================================================== */
+.modalBackdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(2, 4, 8, 0.82);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 80;
+    padding: 20px;
+}
+
+.modalBackdrop.active {
+    display: flex;
+}
+
+.dedicationLetter {
+    width: min(520px, 94vw);
+    background: var(--card-bg);
+    border: 1px solid var(--border-line);
+    border-radius: 28px;
+    padding: 40px 34px;
+    backdrop-filter: blur(28px);
+    -webkit-backdrop-filter: blur(28px);
+    box-shadow: 0 0 50px var(--accent-glow), 0 30px 60px rgba(0,0,0,0.8);
+    text-align: center;
+    position: relative;
+    animation: letterUnfold 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes letterUnfold {
+    0% { transform: scale(0.92) translateY(20px); opacity: 0; }
+    100% { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+.closeLetterBtn {
+    position: absolute;
+    top: 20px;
+    right: 24px;
+    background: transparent;
+    border: none;
+    color: var(--cream);
+    opacity: 0.5;
+    font-size: 22px;
+    cursor: pointer;
+}
+
+.closeLetterBtn:hover { opacity: 1; }
+
+.letterTag {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: 0.22em;
+    color: var(--accent);
+    margin-bottom: 10px;
+    text-transform: uppercase;
+}
+
+.letterTitle {
+    font-family: var(--serif);
+    font-size: 32px;
+    font-weight: 400;
+    color: var(--cream);
+    margin-bottom: 8px;
+}
+
+.letterSub {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 14.5px;
+    color: rgba(255,255,255,0.7);
+    margin-bottom: 24px;
+    line-height: 1.5;
+}
+
+.inputFieldGroup {
+    width: 100%;
+    margin-bottom: 18px;
+    text-align: left;
+}
+
+.inputLabel {
+    display: block;
+    font-family: var(--sans);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    color: var(--accent);
+    margin-bottom: 8px;
+}
+
+.modalInput, .modalTextarea {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.45);
+    border: 1px solid var(--border-line);
+    border-radius: 14px;
+    padding: 13px 16px;
+    color: #ffffff;
+    font-family: var(--serif);
+    font-size: 16px;
+    outline: none;
+    transition: border-color 0.25s, box-shadow 0.25s;
+}
+
+.modalInput:focus, .modalTextarea:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 18px var(--accent-glow);
+}
+
+.modalTextarea {
+    resize: none;
+    height: 85px;
+}
+
+.letterActionRow {
+    display: flex;
+    gap: 12px;
+    width: 100%;
+    margin-top: 10px;
+}
+
+.modalActionBtn {
+    flex: 1;
+    padding: 14px 20px;
+    border-radius: 100px;
+    font-family: var(--serif);
+    font-size: 15px;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    border: none;
+}
+
+.btnFill {
+    background: var(--accent);
+    color: #050811;
+    font-weight: 600;
+    box-shadow: 0 0 25px var(--accent-glow);
+}
+
+.btnFill:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 35px var(--accent);
+}
+
+.btnOutline {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid var(--border-line);
+    color: var(--cream);
+}
+
+.btnOutline:hover {
+    background: rgba(255,255,255,0.12);
+}
+
+.toastPill {
+    position: fixed;
+    top: 86px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-20px);
+    background: var(--card-bg);
+    border: 1px solid var(--accent);
+    box-shadow: 0 0 30px var(--accent-glow);
+    padding: 11px 26px;
+    border-radius: 100px;
+    font-family: var(--serif);
+    font-size: 14.5px;
+    color: #ffffff;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 100;
+}
+
+.toastPill.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+@media (max-width: 700px) {
+    .topBar { top: 16px; left: 16px; right: 16px; flex-direction: column; align-items: flex-start; gap: 12px; }
+    .navControls { width: 100%; justify-content: space-between; }
+    .bottomDock { bottom: 20px; gap: 8px; }
+    .botanicalBtn { padding: 11px 18px; font-size: 14px; }
+    .guideCaption { display: none; }
+}
+/* ---- Finished gift: dedication/creator tool hidden ---- */
+#giftBtn, #modalBackdrop { display: none !important; }
+</style>
+</head>
+
+<body>
+
+<!-- WebGL 3D Canvas -->
+<canvas id="canvas3d"></canvas>
+<div class="lightHalo"></div>
+<div class="vignetteOverlay"></div>
+
+<!-- Top Header -->
+<header class="topBar">
+    <div class="brandSign">
+        <h1 class="brandTitle">A Sanctuary for E'zoza</h1>
+        <span class="brandSubtitle">Realistic 3D butterflies · Everlasting botanical bloom</span>
+    </div>
+
+    <div class="navControls">
+        <div class="styleSelector">
+            <button class="stylePill" data-style="morpho">Morpho Blue</button>
+            <button class="stylePill" data-style="monarch">Monarch</button>
+            <button class="stylePill active" data-style="sakura">Sakura</button>
+            <button class="stylePill" data-style="emerald">Emerald</button>
+        </div>
+
+        <button class="audioBtn" id="audioBtn">
+            <span id="audioIcon">🔊</span> Sound
+        </button>
+    </div>
+</header>
+
+<div class="guideCaption">
+    ✨ Move camera or click petals · a quiet garden that blooms for you, E'zoza
+</div>
+
+<!-- Bottom Dock -->
+<footer class="bottomDock">
+    <button class="botanicalBtn" id="releaseBtn">
+        🦋 Release Butterfly
+    </button>
+    <button class="botanicalBtn" id="landBtn">
+        🌸 Rest on Flowers
+    </button>
+    <button class="botanicalBtn" id="giftBtn">
+        💌 Dedicate Garden
+    </button>
+</footer>
+
+<!-- Dedication Gift Modal -->
+<div class="modalBackdrop" id="modalBackdrop">
+    <div class="dedicationLetter">
+        <button class="closeLetterBtn" id="closeLetterBtn">&times;</button>
+        <div class="letterTag">ETERNAL BOTANICAL SANCTUARY</div>
+        <h2 class="letterTitle">Dedicate This Garden</h2>
+        <p class="letterSub">Send an everlasting sanctuary of living butterflies and blooming flowers to someone you love.</p>
+
+        <div class="inputFieldGroup">
+            <label class="inputLabel" for="giftTo">TO SOMEONE SPECIAL:</label>
+            <input type="text" id="giftTo" class="modalInput" placeholder="e.g. Giulia, Elena, My Soulmate..." maxlength="40">
+        </div>
+
+        <div class="inputFieldGroup">
+            <label class="inputLabel" for="giftMsg">YOUR DEDICATION MESSAGE:</label>
+            <textarea id="giftMsg" class="modalTextarea" placeholder="In an infinite universe, here is a quiet garden where butterflies always dance for you..." maxlength="180"></textarea>
+        </div>
+
+        <div class="letterActionRow">
+            <button class="modalActionBtn btnFill" id="copyLinkBtn">🔗 Copy Personalized Link</button>
+            <button class="modalActionBtn btnOutline" id="previewBtn">Apply & Close</button>
+        </div>
+    </div>
+</div>
+
+<div class="toastPill" id="toastPill">✓ Personalized garden link copied to clipboard!</div>
+
+<!-- ==========================================================================
+   REALISTIC THREE.JS BOTANICAL & BUTTERFLY SIMULATION ENGINE
+   ========================================================================== -->
+<script>
+/* --- WEB AUDIO PROCEDURAL AMBIENCE --- */
+let audioCtx = null;
+let soundOn = true;
+let ambientGain = null;
+
+function initAudio() {
+    if (!audioCtx) {
+        const AudioClass = window.AudioContext || window.webkitAudioContext;
+        if (AudioClass) audioCtx = new AudioClass();
+    }
+    if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume();
+    }
+    if (soundOn && !ambientGain) {
+        startBotanicalAmbience();
+    }
+}
+
+function startBotanicalAmbience() {
+    if (!audioCtx || !soundOn) return;
+    try {
+        ambientGain = audioCtx.createGain();
+        ambientGain.gain.setValueAtTime(0.001, audioCtx.currentTime);
+        ambientGain.gain.exponentialRampToValueAtTime(0.025, audioCtx.currentTime + 3);
+
+        const filter = audioCtx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(260, audioCtx.currentTime);
+
+        const osc = audioCtx.createOscillator();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(110.00, audioCtx.currentTime); // A2
+
+        const osc2 = audioCtx.createOscillator();
+        osc2.type = 'triangle';
+        osc2.frequency.setValueAtTime(164.81, audioCtx.currentTime); // E3
+
+        osc.connect(filter);
+        osc2.connect(filter);
+        filter.connect(ambientGain);
+        ambientGain.connect(audioCtx.destination);
+
+        osc.start();
+        osc2.start();
+    } catch(e) {}
+}
+
+function playZenChime(freq = 440) {
+    if (!audioCtx || !soundOn) return;
+    try {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 2.0);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 2.1);
+        setTimeout(() => { osc.disconnect(); gain.disconnect(); }, 2200);
+    } catch(e) {}
+}
+
+/* ==========================================================================
+   PROCEDURAL HIGH-RESOLUTION BUTTERFLY WING TEXTURE GENERATOR
+   ========================================================================== */
+function generateWingTexture(species = 'morpho') {
+    const canvas = document.createElement('canvas');
+    canvas.width = 1024;
+    canvas.height = 1024;
+    const ctx = canvas.getContext('2d');
+
+    ctx.clearRect(0, 0, 1024, 1024);
+
+    if (species === 'morpho') {
+        // Morpho Peleides: Vibrant iridescent electric blue with deep black velvet borders & white marginal dots
+        const grad = ctx.createRadialGradient(250, 450, 50, 512, 512, 580);
+        grad.addColorStop(0, '#c7d2fe');
+        grad.addColorStop(0.25, '#38bdf8');
+        grad.addColorStop(0.65, '#1d4ed8');
+        grad.addColorStop(0.88, '#0b1329');
+        grad.addColorStop(1, '#02040a');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, 1024, 1024);
+
+        // Organic biological veins
+        ctx.strokeStyle = 'rgba(5, 12, 28, 0.75)';
+        ctx.lineWidth = 4;
+        for (let i = 0; i < 16; i++) {
+            ctx.beginPath();
+            ctx.moveTo(100, 950);
+            const angle = (i / 15) * 1.5 - 0.2;
+            const endX = 100 + Math.cos(angle) * 880;
+            const endY = 950 - Math.sin(angle) * 880;
+            ctx.quadraticCurveTo(400 + i * 20, 500, endX, endY);
+            ctx.stroke();
+        }
+
+        // White border pearl dots
+        ctx.fillStyle = '#ffffff';
+        for (let a = 0; a < Math.PI / 1.7; a += 0.09) {
+            const px = 100 + Math.cos(a) * 820;
+            const py = 950 - Math.sin(a) * 820;
+            ctx.beginPath();
+            ctx.arc(px, py, 6, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+    } else if (species === 'monarch') {
+        // Danaus Plexippus: Fiery orange with dark black cell veins & dotted border
+        const grad = ctx.createRadialGradient(200, 450, 80, 512, 512, 560);
+        grad.addColorStop(0, '#fbbf24');
+        grad.addColorStop(0.4, '#ea580c');
+        grad.addColorStop(0.75, '#c2410c');
+        grad.addColorStop(0.9, '#180802');
+        grad.addColorStop(1, '#080201');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, 1024, 1024);
+
+        // Deep black thick veins
+        ctx.strokeStyle = '#0a0301';
+        ctx.lineWidth = 8;
+        for (let i = 0; i < 14; i++) {
+            ctx.beginPath();
+            ctx.moveTo(100, 950);
+            const angle = (i / 13) * 1.5 - 0.2;
+            const endX = 100 + Math.cos(angle) * 860;
+            const endY = 950 - Math.sin(angle) * 860;
+            ctx.quadraticCurveTo(350 + i * 25, 480, endX, endY);
+            ctx.stroke();
+        }
+
+        // Distinctive white margin spots
+        ctx.fillStyle = '#ffffff';
+        for (let a = 0; a < Math.PI / 1.7; a += 0.075) {
+            const px = 100 + Math.cos(a) * 830;
+            const py = 950 - Math.sin(a) * 830;
+            ctx.beginPath();
+            ctx.arc(px, py, 7, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+    } else if (species === 'sakura') {
+        // Cherry Blossom Swallowtail: Soft pearlescent blush pink with gold dusting
+        const grad = ctx.createRadialGradient(250, 450, 60, 512, 512, 560);
+        grad.addColorStop(0, '#ffffff');
+        grad.addColorStop(0.35, '#fbcfe8');
+        grad.addColorStop(0.75, '#db2777');
+        grad.addColorStop(0.92, '#4c0519');
+        grad.addColorStop(1, '#1f020a');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, 1024, 1024);
+
+        ctx.strokeStyle = 'rgba(76, 5, 25, 0.7)';
+        ctx.lineWidth = 4;
+        for (let i = 0; i < 15; i++) {
+            ctx.beginPath();
+            ctx.moveTo(100, 950);
+            const angle = (i / 14) * 1.5 - 0.2;
+            ctx.quadraticCurveTo(380 + i * 20, 500, 100 + Math.cos(angle) * 860, 950 - Math.sin(angle) * 860);
+            ctx.stroke();
+        }
+
+    } else if (species === 'emerald') {
+        // Papilio Palinurus: Emerald green diamond dusting on velvet noir
+        const grad = ctx.createRadialGradient(250, 450, 50, 512, 512, 580);
+        grad.addColorStop(0, '#a7f3d0');
+        grad.addColorStop(0.35, '#10b981');
+        grad.addColorStop(0.72, '#047857');
+        grad.addColorStop(0.9, '#022c22');
+        grad.addColorStop(1, '#01100b');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, 1024, 1024);
+
+        ctx.strokeStyle = 'rgba(2, 44, 34, 0.8)';
+        ctx.lineWidth = 5;
+        for (let i = 0; i < 15; i++) {
+            ctx.beginPath();
+            ctx.moveTo(100, 950);
+            const angle = (i / 14) * 1.5 - 0.2;
+            ctx.quadraticCurveTo(380 + i * 20, 500, 100 + Math.cos(angle) * 860, 950 - Math.sin(angle) * 860);
+            ctx.stroke();
+        }
+    }
+
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.generateMipmaps = true;
+    texture.minFilter = THREE.LinearMipmapLinearFilter;
+    return texture;
+}
+
+/* ==========================================================================
+   THREE.JS PHOTOREALISTIC BOTANICAL SCENE SETUP
+   ========================================================================== */
+const canvas = document.getElementById('canvas3d');
+const scene = new THREE.Scene();
+
+const camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 1000);
+camera.position.set(0, 4.2, 11.5);
+
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'high-performance' });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.15;
+
+const controls = new THREE.OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.05;
+controls.maxPolarAngle = Math.PI / 2 - 0.02;
+controls.minDistance = 3.2;
+controls.maxDistance = 20;
+controls.target.set(0, 1.6, 0);
+
+/* --- PHOTOREALISTIC LIGHTING --- */
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.9);
+scene.add(ambientLight);
+
+// Warm Sunlight with Soft Shadows
+const sun = new THREE.DirectionalLight(0xfff7ed, 2.2);
+sun.position.set(7, 16, 9);
+sun.castShadow = true;
+sun.shadow.mapSize.width = 2048;
+sun.shadow.mapSize.height = 2048;
+sun.shadow.camera.near = 0.5;
+sun.shadow.camera.far = 30;
+sun.shadow.camera.left = -8;
+sun.shadow.camera.right = 8;
+sun.shadow.camera.top = 8;
+sun.shadow.camera.bottom = -8;
+sun.shadow.bias = -0.0005;
+scene.add(sun);
+
+// Soft Rim Light / Subsurface Backlight
+const rimLight = new THREE.DirectionalLight(0x60a5fa, 1.2);
+rimLight.position.set(-6, 8, -6);
+scene.add(rimLight);
+
+const pondLight = new THREE.PointLight(0x38bdf8, 2.0, 18);
+pondLight.position.set(0, 2.5, 0);
+scene.add(pondLight);
+
+/* ==========================================================================
+   BOTANICAL GROUND, POND, WATER LILY PADS & STONES
+   ========================================================================== */
+const gardenRoot = new THREE.Group();
+scene.add(gardenRoot);
+
+// 1. Water Surface (Deep dark reflective pool)
+const waterGeo = new THREE.CircleGeometry(9, 64);
+const waterMat = new THREE.MeshStandardMaterial({
+    color: 0x050a14,
+    roughness: 0.08,
+    metalness: 0.92,
+    transparent: true,
+    opacity: 0.92
+});
+const water = new THREE.Mesh(waterGeo, waterMat);
+water.rotation.x = -Math.PI / 2;
+water.position.y = 0;
+water.receiveShadow = true;
+gardenRoot.add(water);
+
+// 2. Pond Bed & Rounded Stones
+const stoneMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.8, metalness: 0.1 });
+const stones = [];
+for (let i = 0; i < 18; i++) {
+    const angle = (i / 18) * Math.PI * 2;
+    const r = 5.2 + Math.random() * 2.2;
+    const sGeo = new THREE.DodecahedronGeometry(0.35 + Math.random() * 0.45, 1);
+    const stone = new THREE.Mesh(sGeo, stoneMat);
+    stone.position.set(Math.cos(angle) * r, -0.1, Math.sin(angle) * r);
+    stone.scale.set(1.4 + Math.random() * 0.5, 0.6, 1.2 + Math.random() * 0.5);
+    stone.rotation.set(Math.random(), Math.random(), Math.random());
+    stone.receiveShadow = true;
+    gardenRoot.add(stone);
+    stones.push(stone);
+}
+
+// 3. Floating Lily Pads with Vein Texture
+function createLilyPad(x, z, radius = 1.4, rotation = 0) {
+    const padShape = new THREE.Shape();
+    padShape.absarc(0, 0, radius, 0.2, Math.PI * 2 - 0.2, false);
+    padShape.lineTo(0, 0);
+
+    const padGeo = new THREE.ShapeGeometry(padShape, 32);
+    const padMat = new THREE.MeshStandardMaterial({
+        color: 0x15803d,
+        emissive: 0x052e16,
+        emissiveIntensity: 0.2,
+        roughness: 0.45,
+        metalness: 0.1,
+        side: THREE.DoubleSide
+    });
+    const pad = new THREE.Mesh(padGeo, padMat);
+    pad.rotation.x = -Math.PI / 2;
+    pad.rotation.z = rotation;
+    pad.position.set(x, 0.02, z);
+    pad.receiveShadow = true;
+    gardenRoot.add(pad);
+    return pad;
+}
+
+createLilyPad(-1.8, -1.2, 1.3, 0.5);
+createLilyPad(2.4, 0.8, 1.5, 2.1);
+createLilyPad(-0.8, 2.2, 1.1, 4.2);
+createLilyPad(1.5, -2.4, 1.2, 1.2);
+
+/* ==========================================================================
+   HYPER-REALISTIC 3D LOTUS FLOWERS (Organic Stems, Petals & Golden Stamens)
+   ========================================================================== */
+const flowers = [];
+
+function buildRealisticLotus(x = 0, y = 0.5, z = 0, scale = 1, currentSpecies = 'morpho') {
+    const group = new THREE.Group();
+    group.position.set(x, y, z);
+    group.scale.set(scale, scale, scale);
+
+    // 1. Organic Curved Stem with subtle thorns/nodes
+    const stemCurve = new THREE.CatmullRomCurve3([
+        new THREE.Vector3(0, -y, 0),
+        new THREE.Vector3(0.08, y * 0.4, 0.04),
+        new THREE.Vector3(0, y + 0.35, 0)
+    ]);
+    const stemGeo = new THREE.TubeGeometry(stemCurve, 24, 0.065, 10, false);
+    const stemMat = new THREE.MeshStandardMaterial({ color: 0x166534, roughness: 0.45, metalness: 0.05 });
+    const stem = new THREE.Mesh(stemGeo, stemMat);
+    stem.castShadow = true;
+    stem.receiveShadow = true;
+    group.add(stem);
+
+    // 2. Center Seed Receptacle Pod
+    const podGeo = new THREE.CylinderGeometry(0.38, 0.2, 0.3, 16);
+    const podMat = new THREE.MeshStandardMaterial({
+        color: 0xca8a04,
+        emissive: 0x854d0e,
+        emissiveIntensity: 0.5,
+        roughness: 0.35
+    });
+    const pod = new THREE.Mesh(podGeo, podMat);
+    pod.position.y = y + 0.38;
+    pod.castShadow = true;
+    group.add(pod);
+
+    // 3. 36 Realistic Golden Stamens with Filaments & Anthers
+    const stamenMat = new THREE.MeshStandardMaterial({ color: 0xfef08a, emissive: 0xeab308, emissiveIntensity: 0.4, roughness: 0.2 });
+    const filGeo = new THREE.CylinderGeometry(0.012, 0.012, 0.35, 5);
+    const antherGeo = new THREE.SphereGeometry(0.028, 6, 6);
+
+    for (let s = 0; s < 32; s++) {
+        const sAngle = (s / 32) * Math.PI * 2;
+        const sDist = 0.32 + Math.random() * 0.12;
+        const sGroup = new THREE.Group();
+        sGroup.position.set(Math.cos(sAngle) * sDist, y + 0.4, Math.sin(sAngle) * sDist);
+
+        const fil = new THREE.Mesh(filGeo, stamenMat);
+        fil.position.y = 0.15;
+        sGroup.add(fil);
+
+        const anther = new THREE.Mesh(antherGeo, stamenMat);
+        anther.position.y = 0.32;
+        sGroup.add(anther);
+
+        sGroup.rotation.x = (Math.random() - 0.5) * 0.3;
+        sGroup.rotation.z = (Math.random() - 0.5) * 0.3;
+        group.add(sGroup);
+    }
+
+    // 4. Realistic Petals (Curved Organic Geometry)
+    function createRealisticPetalMesh(length, width, colorHex, emissiveHex) {
+        const shape = new THREE.Shape();
+        shape.moveTo(0, 0);
+        shape.bezierCurveTo(width * 0.6, length * 0.25, width * 0.95, length * 0.65, 0, length);
+        shape.bezierCurveTo(-width * 0.95, length * 0.65, -width * 0.6, length * 0.25, 0, 0);
+
+        const extrudeSettings = {
+            depth: 0.025,
+            bevelEnabled: true,
+            bevelSegments: 4,
+            steps: 2,
+            bevelSize: 0.02,
+            bevelThickness: 0.015
+        };
+        const geo = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+
+        const mat = new THREE.MeshStandardMaterial({
+            color: colorHex,
+            emissive: emissiveHex,
+            emissiveIntensity: 0.35,
+            roughness: 0.28,
+            metalness: 0.1,
+            side: THREE.DoubleSide
+        });
+
+        const petal = new THREE.Mesh(geo, mat);
+        petal.castShadow = true;
+        petal.receiveShadow = true;
+        return petal;
+    }
+
+    const petalLayers = [
+        { count: 6, length: 1.4, width: 0.65, angle: Math.PI / 3.8, yOff: 0.38 },
+        { count: 8, length: 1.9, width: 0.85, angle: Math.PI / 3.1, yOff: 0.34 },
+        { count: 12, length: 2.5, width: 1.05, angle: Math.PI / 2.4, yOff: 0.3 }
+    ];
+
+    const petalMeshes = [];
+    petalLayers.forEach((layer, lIdx) => {
+        for (let i = 0; i < layer.count; i++) {
+            const rot = (i / layer.count) * Math.PI * 2 + (lIdx * 0.28);
+            const petal = createRealisticPetalMesh(layer.length, layer.width, 0x38bdf8, 0x1d4ed8);
+            petal.position.set(0, y + layer.yOff, 0);
+            petal.rotation.y = rot;
+            petal.rotation.x = layer.angle;
+            group.add(petal);
+            petalMeshes.push(petal);
+        }
+    });
+
+    gardenRoot.add(group);
+    flowers.push({ group, petalMeshes, baseY: y, x, y: y + 0.6, z });
+    return group;
+}
+
+// Build 5 Lush Lotus Clusters in the Sanctuary
+buildLotusCluster('sakura');
+
+function buildLotusCluster(species = 'morpho') {
+    // Clear old flowers if changing theme
+    while (flowers.length > 0) {
+        const f = flowers.pop();
+        gardenRoot.remove(f.group);
+    }
+
+    buildRealisticLotus(0, 1.1, 0, 1.3, species);
+    buildRealisticLotus(-2.6, 0.45, -1.4, 0.9, species);
+    buildRealisticLotus(2.8, 0.55, -1.1, 0.95, species);
+    buildRealisticLotus(1.3, 0.3, 2.6, 0.8, species);
+    buildRealisticLotus(-1.7, 0.38, 2.2, 0.85, species);
+}
+
+/* ==========================================================================
+   ANATOMICALLY REALISTIC 3D BUTTERFLIES
+   ========================================================================== */
+const butterflies = [];
+
+function createRealisticButterfly(species = 'morpho', scale = 0.8) {
+    const root = new THREE.Group();
+
+    // 1. Segmented Chitin Thorax & Abdomen
+    const bodyGroup = new THREE.Group();
+    const thoraxGeo = new THREE.SphereGeometry(0.08, 12, 12);
+    thoraxGeo.scale(0.8, 1.4, 0.8);
+    const bodyMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.6, metalness: 0.2 });
+    const thorax = new THREE.Mesh(thoraxGeo, bodyMat);
+    thorax.rotation.x = Math.PI / 2;
+    bodyGroup.add(thorax);
+
+    const abdGeo = new THREE.CylinderGeometry(0.06, 0.025, 0.45, 10);
+    const abdomen = new THREE.Mesh(abdGeo, bodyMat);
+    abdomen.position.set(0, 0, -0.26);
+    abdomen.rotation.x = Math.PI / 2;
+    bodyGroup.add(abdomen);
+
+    // Head & Glossy Compound Eyes
+    const headGeo = new THREE.SphereGeometry(0.065, 10, 10);
+    const head = new THREE.Mesh(headGeo, bodyMat);
+    head.position.set(0, 0, 0.16);
+    bodyGroup.add(head);
+
+    const eyeMat = new THREE.MeshStandardMaterial({ color: 0x020617, roughness: 0.1, metalness: 0.8 });
+    const eyeL = new THREE.Mesh(new THREE.SphereGeometry(0.025, 8, 8), eyeMat);
+    eyeL.position.set(-0.045, 0.02, 0.18);
+    const eyeR = new THREE.Mesh(new THREE.SphereGeometry(0.025, 8, 8), eyeMat);
+    eyeR.position.set(0.045, 0.02, 0.18);
+    bodyGroup.add(eyeL);
+    bodyGroup.add(eyeR);
+
+    // Delicate Curved Antennae with Club Tips
+    const antMat = new THREE.LineBasicMaterial({ color: 0x94a3b8 });
+    const lAnt = new THREE.Line(new THREE.BufferGeometry().setFromPoints([
+        new THREE.Vector3(-0.02, 0.04, 0.2), new THREE.Vector3(-0.16, 0.18, 0.42)
+    ]), antMat);
+    const rAnt = new THREE.Line(new THREE.BufferGeometry().setFromPoints([
+        new THREE.Vector3(0.02, 0.04, 0.2), new THREE.Vector3(0.16, 0.18, 0.42)
+    ]), antMat);
+    bodyGroup.add(lAnt);
+    bodyGroup.add(rAnt);
+
+    root.add(bodyGroup);
+
+    // 2. High-Resolution Textured Wings
+    const wingTex = generateWingTexture(species);
+
+    // Forewing Mesh
+    const forewingShape = new THREE.Shape();
+    forewingShape.moveTo(0, 0);
+    forewingShape.bezierCurveTo(0.4, 0.65, 0.95, 0.95, 1.45, 0.45);
+    forewingShape.bezierCurveTo(1.65, -0.15, 1.05, -0.45, 0.45, -0.35);
+    forewingShape.lineTo(0, 0);
+
+    const forewingGeo = new THREE.ShapeGeometry(forewingShape, 24);
+    // Assign UVs
+    const pos = forewingGeo.attributes.position;
+    const uvs = [];
+    for (let p = 0; p < pos.count; p++) {
+        uvs.push(pos.getX(p) / 1.6, (pos.getY(p) + 0.4) / 1.4);
+    }
+    forewingGeo.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
+
+    const wingMat = new THREE.MeshStandardMaterial({
+        map: wingTex,
+        roughness: 0.25,
+        metalness: 0.35,
+        side: THREE.DoubleSide,
+        transparent: true,
+        opacity: 0.96
+    });
+
+    // Left Wing Pivot (Aerodynamic joint)
+    const leftForewingPivot = new THREE.Group();
+    const lForewing = new THREE.Mesh(forewingGeo, wingMat);
+    lForewing.castShadow = true;
+    leftForewingPivot.add(lForewing);
+    leftForewingPivot.position.set(-0.025, 0.02, 0.05);
+    root.add(leftForewingPivot);
+
+    // Right Wing Pivot
+    const rightForewingPivot = new THREE.Group();
+    const rForewing = new THREE.Mesh(forewingGeo, wingMat);
+    rForewing.scale.x = -1;
+    rForewing.castShadow = true;
+    rightForewingPivot.add(rForewing);
+    rightForewingPivot.position.set(0.025, 0.02, 0.05);
+    root.add(rightForewingPivot);
+
+    root.scale.set(scale, scale, scale);
+    scene.add(root);
+
+    const bData = {
+        mesh: root,
+        lWing: leftForewingPivot,
+        rWing: rightForewingPivot,
+        pos: new THREE.Vector3((Math.random() - 0.5) * 8, 2.2 + Math.random() * 3.5, (Math.random() - 0.5) * 8),
+        target: new THREE.Vector3(0, 2.5, 0),
+        flapSpeed: 16 + Math.random() * 6,
+        flapPhase: Math.random() * Math.PI,
+        flightSpeed: 0.035 + Math.random() * 0.02,
+        isResting: false,
+        restTarget: null,
+        restTimer: 0,
+        species
+    };
+
+    butterflies.push(bData);
+    return bData;
+}
+
+// Spawn initial natural swarm
+function spawnFlock(species = 'morpho') {
+    while (butterflies.length > 0) {
+        const b = butterflies.pop();
+        scene.remove(b.mesh);
+    }
+    for (let i = 0; i < 8; i++) {
+        createRealisticButterfly(species, 0.7 + Math.random() * 0.25);
+    }
+}
+spawnFlock('sakura');
+
+/* --- FLOATING ENCHANTED SPORES / SUNBEAMS --- */
+const sporeCount = 600;
+const sporeGeo = new THREE.BufferGeometry();
+const sporePos = new Float32Array(sporeCount * 3);
+const sporeVel = [];
+
+for (let i = 0; i < sporeCount; i++) {
+    sporePos[i * 3] = (Math.random() - 0.5) * 16;
+    sporePos[i * 3 + 1] = Math.random() * 8;
+    sporePos[i * 3 + 2] = (Math.random() - 0.5) * 16;
+    sporeVel.push({
+        y: 0.003 + Math.random() * 0.006,
+        angle: Math.random() * Math.PI * 2,
+        speed: 0.005 + Math.random() * 0.008
+    });
+}
+sporeGeo.setAttribute('position', new THREE.BufferAttribute(sporePos, 3));
+const sporeMat = new THREE.PointsMaterial({
+    color: 0x93c5fd,
+    size: 0.07,
+    transparent: true,
+    opacity: 0.85,
+    blending: THREE.AdditiveBlending
+});
+const sporeSystem = new THREE.Points(sporeGeo, sporeMat);
+scene.add(sporeSystem);
+
+/* ==========================================================================
+   THEME STYLES & ATMOSPHERE LOGIC
+   ========================================================================== */
+const styleConfigs = {
+    morpho: {
+        themeKey: 'morpho',
+        flowerColor: 0x38bdf8,
+        emissiveColor: 0x1d4ed8,
+        lightColor: 0x38bdf8,
+        sporeColor: 0x93c5fd
+    },
+    monarch: {
+        themeKey: 'monarch',
+        flowerColor: 0xf97316,
+        emissiveColor: 0x9a3412,
+        lightColor: 0xfb923c,
+        sporeColor: 0xfde047
+    },
+    sakura: {
+        themeKey: 'sakura',
+        flowerColor: 0xf472b6,
+        emissiveColor: 0xbe185d,
+        lightColor: 0xf472b6,
+        sporeColor: 0xfbcfe8
+    },
+    emerald: {
+        themeKey: 'emerald',
+        flowerColor: 0x10b981,
+        emissiveColor: 0x047857,
+        lightColor: 0x10b981,
+        sporeColor: 0xa7f3d0
+    }
+};
+
+function applyStyle(styleKey) {
+    const cfg = styleConfigs[styleKey] || styleConfigs.morpho;
+    document.documentElement.setAttribute('data-style', styleKey);
+
+    pondLight.color.setHex(cfg.lightColor);
+    sporeMat.color.setHex(cfg.sporeColor);
+
+    // Update Flower Petal Colors
+    flowers.forEach(f => {
+        f.petalMeshes.forEach(p => {
+            p.material.color.setHex(cfg.flowerColor);
+            p.material.emissive.setHex(cfg.emissiveColor);
+        });
+    });
+
+    // Re-generate Realistic Wings for the new Species
+    spawnFlock(styleKey);
+}
+
+// Default sanctuary theme: sakura. This also retints the lotus petals,
+// pond light, and spores, which are otherwise built with morpho's blue.
+applyStyle('sakura');
+
+document.querySelectorAll('.stylePill').forEach(pill => {
+    pill.addEventListener('click', () => {
+        document.querySelectorAll('.stylePill').forEach(p => p.classList.remove('active'));
+        pill.classList.add('active');
+        applyStyle(pill.dataset.style);
+        initAudio();
+        playZenChime(659.25);
+    });
+});
+
+/* ==========================================================================
+   INTERACTIONS & RESTING LOGIC
+   ========================================================================== */
+const releaseBtn = document.getElementById('releaseBtn');
+if (releaseBtn) {
+    releaseBtn.addEventListener('click', () => {
+        initAudio();
+        playZenChime(880);
+        const curStyle = document.documentElement.getAttribute('data-style') || 'morpho';
+        const b = createRealisticButterfly(curStyle, 0.85);
+        b.mesh.position.set(0, 1.8, 0);
+        showToast('✨ A new realistic butterfly was released into the sanctuary!');
+    });
+}
+
+// Make butterflies land on flowers
+const landBtn = document.getElementById('landBtn');
+if (landBtn) {
+    landBtn.addEventListener('click', () => {
+        initAudio();
+        playZenChime(523.25);
+        butterflies.forEach((b, idx) => {
+            const flower = flowers[idx % flowers.length];
+            b.isResting = true;
+            b.restTarget = new THREE.Vector3(flower.x + (Math.random() - 0.5) * 0.4, flower.y + 0.15, flower.z + (Math.random() - 0.5) * 0.4);
+            b.restTimer = 400 + Math.random() * 300;
+        });
+        showToast('🌸 Butterflies are landing on petals to drink nectar...');
+    });
+}
+
+// Raycasting to guide butterflies
+const raycaster = new THREE.Raycaster();
+const mouse = new THREE.Vector2();
+
+window.addEventListener('pointerdown', (e) => {
+    if (e.target.closest('button') || e.target.closest('.navControls') || e.target.closest('.dedicationLetter')) return;
+    initAudio();
+
+    mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+    raycaster.setFromCamera(mouse, camera);
+
+    const plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), -1.6);
+    const hit = new THREE.Vector3();
+    raycaster.ray.intersectPlane(plane, hit);
+
+    if (hit) {
+        butterflies.forEach(b => {
+            b.isResting = false;
+            b.target.copy(hit);
+            b.target.x += (Math.random() - 0.5) * 1.5;
+            b.target.y += (Math.random() - 0.5) * 1.0;
+            b.target.z += (Math.random() - 0.5) * 1.5;
+        });
+        playZenChime(440 + Math.random() * 250);
+    }
+});
+
+/* --- DEDICATION MODAL & SHARING --- */
+const giftBtn = document.getElementById('giftBtn');
+const modalBackdrop = document.getElementById('modalBackdrop');
+const closeLetterBtn = document.getElementById('closeLetterBtn');
+const giftTo = document.getElementById('giftTo');
+const giftMsg = document.getElementById('giftMsg');
+const copyLinkBtn = document.getElementById('copyLinkBtn');
+const previewBtn = document.getElementById('previewBtn');
+const toastPill = document.getElementById('toastPill');
+
+function showToast(msg) {
+    if (!toastPill) return;
+    toastPill.textContent = msg;
+    toastPill.classList.add('show');
+    setTimeout(() => toastPill.classList.remove('show'), 2600);
+}
+
+if (giftBtn) giftBtn.addEventListener('click', () => modalBackdrop.classList.add('active'));
+if (closeLetterBtn) closeLetterBtn.addEventListener('click', () => modalBackdrop.classList.remove('active'));
+
+// Read URL parameters
+const searchParams = new URLSearchParams(window.location.search);
+const toParam = searchParams.get('to') || searchParams.get('for');
+const msgParam = searchParams.get('msg') || searchParams.get('note');
+const styleParam = searchParams.get('style');
+
+if (styleParam && styleConfigs[styleParam]) {
+    applyStyle(styleParam);
+    document.querySelectorAll('.stylePill').forEach(p => {
+        p.classList.toggle('active', p.dataset.style === styleParam);
+    });
+}
+
+if (toParam) {
+    giftTo.value = toParam;
+    document.querySelector('.brandTitle').textContent = `Sanctuary for ${toParam}`;
+    if (msgParam) giftMsg.value = msgParam;
+}
+
+if (copyLinkBtn) {
+    copyLinkBtn.addEventListener('click', () => {
+        const to = encodeURIComponent(giftTo.value.trim());
+        const msg = encodeURIComponent(giftMsg.value.trim());
+        const curStyle = document.documentElement.getAttribute('data-style') || 'morpho';
+
+        const baseUrl = window.location.origin + window.location.pathname;
+        let shareUrl = `${baseUrl}?style=${curStyle}`;
+        if (to) shareUrl += `&to=${to}`;
+        if (msg) shareUrl += `&msg=${msg}`;
+
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(shareUrl).then(() => showToast('✓ Gift link copied to clipboard!'));
+        } else {
+            const ta = document.createElement('textarea');
+            ta.value = shareUrl;
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            document.body.removeChild(ta);
+            showToast('✓ Gift link copied to clipboard!');
+        }
+    });
+}
+
+if (previewBtn) {
+    previewBtn.addEventListener('click', () => {
+        const to = giftTo.value.trim();
+        if (to) document.querySelector('.brandTitle').textContent = `Sanctuary for ${to}`;
+        modalBackdrop.classList.remove('active');
+        showToast('✨ Sanctuary personalized!');
+    });
+}
+
+/* --- AUDIO TOGGLE --- */
+const audioBtn = document.getElementById('audioBtn');
+if (audioBtn) {
+    audioBtn.addEventListener('click', () => {
+        initAudio();
+        soundOn = !soundOn;
+        document.getElementById('audioIcon').textContent = soundOn ? '🔊' : '🔇';
+        if (!soundOn && ambientGain) {
+            ambientGain.gain.setValueAtTime(0.0001, audioCtx.currentTime);
+        } else if (soundOn && audioCtx) {
+            startBotanicalAmbience();
+        }
+    });
+}
+
+/* ==========================================================================
+   MAIN FLIGHT DYNAMICS & ORGANIC ANIMATION LOOP
+   ========================================================================== */
+const clock = new THREE.Clock();
+
+function animate() {
+    requestAnimationFrame(animate);
+
+    const time = clock.getElapsedTime();
+
+    // Gentle Botanical Sway & Water Shimmer
+    flowers.forEach((f, idx) => {
+        f.group.rotation.z = Math.sin(time * 0.65 + idx) * 0.025;
+        f.group.rotation.x = Math.cos(time * 0.45 + idx) * 0.02;
+    });
+
+    // Spores Flow
+    const pos = sporeGeo.attributes.position.array;
+    for (let i = 0; i < sporeCount; i++) {
+        pos[i * 3 + 1] += sporeVel[i].y;
+        pos[i * 3] += Math.sin(time + sporeVel[i].angle) * sporeVel[i].speed;
+
+        if (pos[i * 3 + 1] > 8) {
+            pos[i * 3 + 1] = 0;
+            pos[i * 3] = (Math.random() - 0.5) * 16;
+            pos[i * 3 + 2] = (Math.random() - 0.5) * 16;
+        }
+    }
+    sporeGeo.attributes.position.needsUpdate = true;
+
+    // Realistic Butterfly Physics & Natural Resting Behavior
+    butterflies.forEach((b, idx) => {
+        if (b.isResting && b.restTarget) {
+            // Smooth glide & touchdown onto petal
+            b.mesh.position.lerp(b.restTarget, 0.04);
+
+            // Gentle slow resting wing fold
+            const slowFold = (Math.sin(time * 1.8 + idx) + 1) * 0.45;
+            b.lWing.rotation.z = slowFold;
+            b.rWing.rotation.z = -slowFold;
+
+            b.restTimer--;
+            if (b.restTimer <= 0) {
+                b.isResting = false; // Take off again naturally
+            }
+        } else {
+            // Aerodynamic In-Flight Wing Flapping
+            const flap = Math.sin(time * b.flapSpeed + b.flapPhase) * 0.95;
+            b.lWing.rotation.z = flap;
+            b.rWing.rotation.z = -flap;
+
+            // Flocking Orbit around flowers
+            const orbitRadius = 2.2 + Math.sin(time * 0.35 + idx) * 1.5;
+            const orbitX = Math.cos(time * 0.3 + idx * 1.1) * orbitRadius;
+            const orbitZ = Math.sin(time * 0.3 + idx * 1.1) * orbitRadius;
+
+            const targetPos = new THREE.Vector3(
+                b.target.x + orbitX,
+                b.target.y + Math.sin(time * 1.3 + idx) * 0.5,
+                b.target.z + orbitZ
+            );
+
+            b.mesh.position.lerp(targetPos, b.flightSpeed);
+
+            // Smooth Banking & Heading Quaternion
+            const forward = targetPos.clone().sub(b.mesh.position).normalize();
+            if (forward.lengthSq() > 0.001) {
+                const targetQuat = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, 1), forward);
+                b.mesh.quaternion.slerp(targetQuat, 0.08);
+            }
+        }
+    });
+
+    controls.update();
+    renderer.render(scene, camera);
+}
+
+animate();
+
+/* --- RESIZE --- */
+window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+});
+</script>
+
+</body>
+</html>

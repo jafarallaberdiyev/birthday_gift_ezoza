@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>For E'zoza 🌸</title>
+<meta name="theme-color" content="#0E0E10">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500;1,600&family=Plus+Jakarta+Sans:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --font-serif: 'Cormorant Garamond', Garamond, Georgia, serif;
+    --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --ivory:#F7F4EB;
+    --ivory-dim: rgba(247,244,235,0.55);
+    --ivory-faint: rgba(247,244,235,0.22);
+    --night:#0E0E10;
+    --night-deep:#070709;
+    --gold:#E5C384;
+    --gold-glow: rgba(229,195,132,0.35);
+  }
+  *{ margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body{
+    width:100%; height:100%; overflow:hidden; position:fixed; inset:0;
+    background:var(--night-deep); color:var(--ivory); font-family:var(--font-sans);
+  }
+
+  #stageWrap{ position:fixed; inset:0; }
+
+  .slide{
+    position:absolute; inset:0;
+    display:none;
+    opacity:0;
+    transform:translateY(14px) scale(0.995);
+    transition: opacity .7s cubic-bezier(.16,1,.3,1), transform .7s cubic-bezier(.16,1,.3,1);
+  }
+  .slide.active{
+    display:block;
+    opacity:1;
+    transform:translateY(0) scale(1);
+  }
+
+  .slide iframe{
+    position:absolute; inset:0; width:100%; height:100%; border:0; background:var(--night-deep);
+  }
+
+  /* ---------------- Lily slide ---------------- */
+  #lilySlide{
+    background:
+      radial-gradient(circle at 50% 22%, rgba(242,165,194,0.09) 0%, transparent 55%),
+      linear-gradient(180deg, #0b0a10 0%, #060508 60%, #020203 100%);
+  }
+  #lilySlide .lilyInner{
+    width:100%; height:100%; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; text-align:center; padding:24px;
+  }
+  #lilySlide .lilyEyebrow{
+    font-family:var(--font-sans); font-size:11px; letter-spacing:.28em; text-transform:uppercase;
+    color:var(--gold); margin:0 0 26px; opacity:0.9;
+  }
+  #lilySlide .lily{
+    width:min(300px,68vw); margin:0 auto; overflow:visible;
+    filter:drop-shadow(0 0 24px rgba(242,165,195,0.24));
+  }
+  #lilySlide .lily .stem{
+    fill:none; stroke:#668c68; stroke-width:4.5; stroke-linecap:round;
+    stroke-dasharray:520; stroke-dashoffset:520;
+  }
+  #lilySlide.active .lily .stem{ animation: lilyStem 2.6s ease forwards; }
+  @keyframes lilyStem{ to{ stroke-dashoffset:0; } }
+  #lilySlide .lily .leaf{ fill:#5f8a5f; opacity:0; transform-box:fill-box; transform-origin:center; }
+  #lilySlide.active .lily .leaf{ animation: lilyLeaf 1s 1.9s ease forwards; }
+  #lilySlide.active .lily .leaf.r{ animation-delay:2.15s; }
+  @keyframes lilyLeaf{ from{ opacity:0; transform:scale(.15); } to{ opacity:1; transform:scale(1); } }
+  #lilySlide .lily .petal{
+    opacity:0; transform-box:fill-box; transform-origin:50% 100%;
+    stroke:#bc557f; stroke-width:1; paint-order:stroke;
+    filter:drop-shadow(0 3px 3px rgba(90,17,45,.22));
+  }
+  #lilySlide.active .lily .petal{ animation: lilyPetal 1.5s ease forwards; }
+  @keyframes lilyPetal{ from{ opacity:0; transform:rotate(var(--a)) scale(.15); } to{ opacity:1; transform:rotate(var(--a)) scale(1); } }
+  #lilySlide.active .lily .p1{ animation-delay:2.5s; }
+  #lilySlide.active .lily .p2{ animation-delay:2.7s; }
+  #lilySlide.active .lily .p3{ animation-delay:2.9s; }
+  #lilySlide.active .lily .p4{ animation-delay:3.1s; }
+  #lilySlide.active .lily .p5{ animation-delay:3.3s; }
+  #lilySlide.active .lily .p6{ animation-delay:3.5s; }
+  #lilySlide .lily .stamens{ opacity:0; }
+  #lilySlide.active .lily .stamens{ animation: lilyFade 1s 3.8s forwards; }
+  #lilySlide .lilyWord{
+    margin:26px 0 0; color:#f2a5c2; font-family:var(--font-serif); font-style:italic; font-weight:500;
+    font-size:clamp(22px,5vw,30px); opacity:0;
+  }
+  #lilySlide.active .lilyWord{ animation: lilyFade 1.3s 4.4s forwards; }
+  @keyframes lilyFade{ to{ opacity:1; } }
+
+  /* ---------------- Letter slide ---------------- */
+  #letterSlide{
+    overflow-y:auto; -webkit-overflow-scrolling:touch;
+    background:
+      radial-gradient(circle at 50% 15%, rgba(229,195,132,0.10) 0%, transparent 55%),
+      linear-gradient(180deg, #0b0b0d 0%, #07070a 60%, #050506 100%);
+  }
+  #letterSlide .letterInner{
+    min-height:100%;
+    display:flex; align-items:center; justify-content:center;
+    padding: 88px 24px 140px;
+  }
+  #letterSlide .letterCard{
+    max-width:600px; width:100%;
+    text-align:center;
+  }
+  #letterSlide .kicker{
+    font-family:var(--font-sans);
+    font-size:11px; letter-spacing:.28em; text-transform:uppercase;
+    color:var(--gold); opacity:0; transform:translateY(8px);
+    transition:opacity .8s ease .1s, transform .8s ease .1s;
+  }
+  #letterSlide .to-line{
+    font-family:var(--font-serif); font-weight:500; font-style:italic;
+    font-size:clamp(26px,6vw,38px); margin-top:18px; color:var(--ivory);
+    opacity:0; transform:translateY(10px);
+    transition:opacity .8s ease .25s, transform .8s ease .25s;
+  }
+  #letterSlide .rule{
+    width:56px; height:1px; background:var(--gold-glow); margin:26px auto;
+    opacity:0; transition:opacity 1s ease .4s;
+  }
+  #letterSlide .body-text{
+    font-family:var(--font-serif); font-weight:400;
+    font-size:clamp(17px,2.6vw,21px); line-height:1.75;
+    color:var(--ivory-dim);
+    opacity:0; transform:translateY(10px);
+    transition:opacity .9s ease .55s, transform .9s ease .55s;
+  }
+  #letterSlide .body-text p{ margin:0 0 1.35em; }
+  #letterSlide .body-text p:last-child{ margin-bottom:0; }
+  #letterSlide .signoff{
+    font-family:var(--font-serif); font-style:italic; font-weight:500;
+    font-size:clamp(20px,3.4vw,26px); color:var(--gold);
+    margin-top:34px;
+    opacity:0; transform:translateY(10px);
+    transition:opacity .9s ease .85s, transform .9s ease .85s;
+  }
+  #letterSlide.active .kicker,
+  #letterSlide.active .to-line,
+  #letterSlide.active .rule,
+  #letterSlide.active .body-text,
+  #letterSlide.active .signoff{
+    opacity:1; transform:translateY(0);
+  }
+  #letterSlide .replayRow{
+    margin-top:52px;
+    display:flex; align-items:center; justify-content:center; gap:14px; flex-wrap:wrap;
+    opacity:0; transition:opacity 1s ease 1.1s;
+  }
+  #letterSlide.active .replayRow{ opacity:1; }
+  .replayBtn{
+    font-family:var(--font-sans); font-size:12px; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--ivory-dim); background:transparent; border:1px solid var(--ivory-faint);
+    border-radius:999px; padding:12px 22px; cursor:pointer;
+    transition:border-color .3s ease, color .3s ease;
+  }
+  .replayBtn:hover{ border-color:var(--gold); color:var(--gold); }
+
+  /* ---------------- Navigation chrome ---------------- */
+  #navDots{
+    position:fixed; left:50%; bottom:22px; transform:translateX(-50%);
+    display:flex; gap:14px; z-index:50;
+    padding:10px 16px; border-radius:999px;
+    background:rgba(7,7,9,0.35); backdrop-filter:blur(10px);
+    -webkit-backdrop-filter:blur(10px);
+    border:1px solid rgba(247,244,235,0.08);
+  }
+  .navDot{
+    width:8px; height:8px; border-radius:50%;
+    background:var(--ivory-faint); border:0; cursor:pointer; padding:0;
+    transition: background .3s ease, transform .3s ease;
+  }
+  .navDot.active{ background:var(--gold); transform:scale(1.3); }
+
+  .navArrow{
+    position:fixed; top:50%; transform:translateY(-50%);
+    width:42px; height:42px; border-radius:50%;
+    background:rgba(7,7,9,0.35); border:1px solid rgba(247,244,235,0.10);
+    color:var(--ivory-dim); font-size:18px; line-height:1;
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer; z-index:50; backdrop-filter:blur(10px);
+    -webkit-backdrop-filter:blur(10px);
+    transition:opacity .3s ease, color .3s ease, border-color .3s ease;
+    opacity:0.55;
+  }
+  .navArrow:hover{ opacity:1; color:var(--gold); border-color:var(--gold-glow); }
+  #prevArrow{ left:14px; }
+  #nextArrow{ right:14px; }
+
+  @media (max-width:640px){
+    .navArrow{ width:36px; height:36px; font-size:16px; }
+    #navDots{ bottom:14px; gap:11px; padding:9px 14px; }
+  }
+
+  /* ---------------- First-time swipe hint ---------------- */
+  #swipeHint{
+    position:fixed; left:50%; bottom:78px; transform:translateX(-50%);
+    font-family:var(--font-sans); font-size:11px; letter-spacing:.16em; text-transform:uppercase;
+    color:var(--ivory-dim); z-index:49; pointer-events:none;
+    opacity:0; transition:opacity .8s ease;
+    display:flex; align-items:center; gap:8px;
+  }
+  #swipeHint.show{ opacity:0.85; }
+  #swipeHint .chev{ display:inline-block; animation:hintNudge 1.6s ease-in-out infinite; color:var(--gold); }
+  @keyframes hintNudge{
+    0%,100%{ transform:translateX(0); }
+    50%{ transform:translateX(5px); }
+  }
+
+  /* ---------------- Lock / countdown gate ---------------- */
+  #lockGate{
+    position:fixed; inset:0; z-index:200;
+    display:flex; align-items:center; justify-content:center;
+    padding:28px 20px; text-align:center;
+    background:radial-gradient(ellipse at 50% 26%, #2b1d40 0%, #130d22 45%, #040407 100%);
+    transition: opacity 1.1s ease, visibility 1.1s ease;
+  }
+  #lockGate.unlocked{ opacity:0; visibility:hidden; pointer-events:none; }
+  #lockGate .lockInner{ max-width:510px; width:100%; }
+  #lockGate .lockStars{
+    margin:0 0 26px; color:rgba(247,218,161,0.66);
+    font-family:var(--font-sans); font-size:13px; letter-spacing:1.2em;
+  }
+  #lockGate .lockName{
+    margin:0 0 14px; color:var(--gold);
+    font-family:var(--font-sans); font-size:10px; font-weight:500;
+    letter-spacing:.27em; text-transform:uppercase;
+  }
+  #lockGate h1{
+    margin:0; font-family:var(--font-serif); font-weight:500;
+    font-size:clamp(38px,9vw,64px); line-height:0.98; color:var(--ivory);
+  }
+  #lockGate h1 em{ color:#f2a5c2; font-style:italic; font-weight:500; }
+  #lockGate .lockSub{
+    margin:20px auto 0; max-width:320px;
+    font-family:var(--font-serif); font-size:clamp(16px,3.6vw,20px);
+    line-height:1.4; color:rgba(247,244,235,0.78);
+  }
+  #lockGate .countdownRow{
+    display:flex; justify-content:center; gap:10px; margin-top:32px; flex-wrap:nowrap;
+  }
+  #lockGate .cdBlock{
+    min-width:64px; padding:12px 8px;
+    border:1px solid rgba(247,218,161,0.34); border-radius:12px;
+    background:rgba(255,255,255,0.05);
+  }
+  #lockGate .cdNum{
+    font-family:var(--font-sans); font-weight:500; font-size:clamp(22px,5vw,28px);
+    color:var(--ivory); line-height:1; font-variant-numeric:tabular-nums;
+  }
+  #lockGate .cdLabel{
+    margin-top:7px; font-family:var(--font-sans); font-size:8px; letter-spacing:.15em;
+    text-transform:uppercase; color:var(--gold);
+  }
+  #lockGate .lockFooter{
+    margin-top:24px; font-family:var(--font-serif); font-style:italic;
+    color:#f2a5c2; font-size:19px;
+  }
+  @media (max-width:420px){
+    #lockGate .countdownRow{ gap:8px; }
+    #lockGate .cdBlock{ min-width:54px; padding:10px 6px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="lockGate">
+  <div class="lockInner">
+    <p class="lockStars">✦ &nbsp;·&nbsp; ✧ &nbsp;·&nbsp; ✦</p>
+    <p class="lockName">For E'zoza</p>
+    <h1>A little surprise<br>is waiting for <em>you.</em></h1>
+    <p class="lockSub">This page will open on your birthday.</p>
+    <div class="countdownRow">
+      <div class="cdBlock"><div class="cdNum" id="cdDays">00</div><div class="cdLabel">Days</div></div>
+      <div class="cdBlock"><div class="cdNum" id="cdHours">00</div><div class="cdLabel">Hours</div></div>
+      <div class="cdBlock"><div class="cdNum" id="cdMinutes">00</div><div class="cdLabel">Minutes</div></div>
+      <div class="cdBlock"><div class="cdNum" id="cdSeconds">00</div><div class="cdLabel">Seconds</div></div>
+    </div>
+    <p class="lockFooter">4 October ✦</p>
+  </div>
+</div>
+
+<div id="stageWrap">
+  <section class="slide active" id="lilySlide" data-title="Lily">
+    <div class="lilyInner">
+      <p class="lilyEyebrow">And this is for you</p>
+      <svg class="lily" viewBox="0 0 360 560" role="img" aria-label="A blooming pink lily">
+        <defs>
+          <radialGradient id="lilyOuter" cx="50%" cy="68%">
+            <stop stop-color="#ffd2df"/>
+            <stop offset=".58" stop-color="#ed8fb2"/>
+            <stop offset="1" stop-color="#bd4d7d"/>
+          </radialGradient>
+          <radialGradient id="lilyInner" cx="50%" cy="72%">
+            <stop stop-color="#fff7fa"/>
+            <stop offset=".58" stop-color="#ffc8dc"/>
+            <stop offset="1" stop-color="#df759f"/>
+          </radialGradient>
+        </defs>
+        <path class="stem" d="M180 530C173 420 188 330 180 245C177 212 180 185 180 160"/>
+        <path class="leaf" d="M180 396C132 385 100 348 94 303C143 309 175 348 180 396Z"/>
+        <path class="leaf r" d="M180 337C230 325 263 287 267 242C218 249 185 288 180 337Z"/>
+        <g transform="translate(180 170)">
+          <path class="petal p1" style="--a:-90deg" fill="url(#lilyOuter)" d="M0 0C-35-42-30-122 0-178C30-122 35-42 0 0Z"/>
+          <path class="petal p2" style="--a:30deg" fill="url(#lilyOuter)" d="M0 0C-35-42-30-122 0-178C30-122 35-42 0 0Z"/>
+          <path class="petal p3" style="--a:150deg" fill="url(#lilyOuter)" d="M0 0C-35-42-30-122 0-178C30-122 35-42 0 0Z"/>
+          <path class="petal p4" style="--a:-30deg" fill="url(#lilyInner)" d="M0 0C-25-34-21-92 0-138C21-92 25-34 0 0Z"/>
+          <path class="petal p5" style="--a:90deg" fill="url(#lilyInner)" d="M0 0C-25-34-21-92 0-138C21-92 25-34 0 0Z"/>
+          <path class="petal p6" style="--a:210deg" fill="url(#lilyInner)" d="M0 0C-25-34-21-92 0-138C21-92 25-34 0 0Z"/>
+          <g class="stamens">
+            <g stroke="#a46655" stroke-width="2" stroke-linecap="round" fill="none">
+              <path d="M0 0C-8-26-16-49-25-70"/>
+              <path d="M0 0C8-26 16-49 25-70"/>
+              <path d="M0 0C0-28 1-52 0-78"/>
+            </g>
+            <g fill="#b67b38">
+              <ellipse cx="-25" cy="-70" rx="4" ry="7"/>
+              <ellipse cx="25" cy="-70" rx="4" ry="7"/>
+              <ellipse cx="0" cy="-78" rx="4" ry="7"/>
+            </g>
+          </g>
+        </g>
+      </svg>
+      <p class="lilyWord">Happy Birthday, my Angel ♡</p>
+    </div>
+  </section>
+
+  <section class="slide" id="slide0" data-title="Bloom">
+    <iframe data-src="scene1_bloom.html" title="Bloom" allow="autoplay" loading="eager"></iframe>
+  </section>
+
+  <section class="slide" id="slide1" data-title="Garden">
+    <iframe data-src="scene2_garden.html" title="A Living Garden" allow="autoplay"></iframe>
+  </section>
+
+  <section class="slide" id="slide2" data-title="Message">
+    <iframe data-src="scene3_loveme.html" title="Encrypted Message" allow="autoplay"></iframe>
+  </section>
+
+  <section class="slide" id="slide3" data-title="Sanctuary">
+    <iframe data-src="scene4_butterflies.html" title="Butterfly Sanctuary" allow="autoplay"></iframe>
+  </section>
+
+  <section class="slide" id="letterSlide" data-title="Letter">
+    <div class="letterInner">
+      <div class="letterCard">
+        <div class="kicker">Happy Birthday</div>
+        <h1 class="to-line">My dearest E'zoza,</h1>
+        <div class="rule"></div>
+        <div class="body-text">
+          <p>Happy birthday, my love. I hope this little surprise made you smile, even just a little.</p>
+          <p>Since you came into my life, so many simple moments have become special to me — your smile, your eyes, your voice, the way you laugh, and even all the little things you probably don't think much about.</p>
+          <p>I'm so happy that I met you. I don't know what the future holds for us, but I know I want to be by your side — to make you smile, to take care of you, and to build as many beautiful memories with you as we possibly can.</p>
+          <p>You deserve to feel loved, appreciated, and happy — not only on your birthday, but every single day.</p>
+          <p>Happy birthday, my angel. ❤️<br>I'm so lucky to have you in my life.</p>
+        </div>
+        <div class="signoff">— Ja'far</div>
+        <div class="replayRow">
+          <button class="replayBtn" id="songToggleBtn">🎵 Pause song</button>
+          <button class="replayBtn" id="replayAllBtn">↺ Watch it again</button>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<audio id="finaleSong" src="love-lana-del-rey.mp3" preload="auto"></audio>
+
+<div id="swipeHint"><span>Swipe or tap</span><span class="chev">›</span></div>
+
+<button class="navArrow" id="prevArrow" aria-label="Previous">‹</button>
+<button class="navArrow" id="nextArrow" aria-label="Next">›</button>
+
+<nav id="navDots">
+  <button class="navDot active" data-index="0" title="Lily"></button>
+  <button class="navDot" data-index="1" title="Bloom"></button>
+  <button class="navDot" data-index="2" title="Garden"></button>
+  <button class="navDot" data-index="3" title="Message"></button>
+  <button class="navDot" data-index="4" title="Sanctuary"></button>
+  <button class="navDot" data-index="5" title="Letter"></button>
+</nav>
+
+<script>
+(function(){
+  'use strict';
+
+  var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var dots = Array.prototype.slice.call(document.querySelectorAll('.navDot'));
+  var prevArrow = document.getElementById('prevArrow');
+  var nextArrow = document.getElementById('nextArrow');
+  var swipeHint = document.getElementById('swipeHint');
+  var current = 0;
+  var total = slides.length;
+  var hasNavigated = false;
+  var transitioning = false;
+
+  /* ---------------- Birthday lock ---------------- */
+  var UNLOCK_AT = new Date(2026, 9, 4, 0, 0, 0, 0).getTime(); // October 4, 2026, local time
+  var lockGate = document.getElementById('lockGate');
+  var cdDays = document.getElementById('cdDays');
+  var cdHours = document.getElementById('cdHours');
+  var cdMinutes = document.getElementById('cdMinutes');
+  var cdSeconds = document.getElementById('cdSeconds');
+  var locked = true;
+  var countdownTimer = null;
+
+  // A quiet way for Ja'far to preview the gift early: open the link with
+  // ?preview=1 added to the end of the URL. There's no visible button for it.
+  var isPreview = /[?&]preview=1\b/.test(window.location.search);
+
+  function pad2(n){ return (n < 10 ? '0' : '') + n; }
+
+  function tickCountdown(){
+    var remaining = UNLOCK_AT - Date.now();
+    if (remaining <= 0) {
+      unlockGift();
+      return;
+    }
+    var totalSeconds = Math.floor(remaining / 1000);
+    var days = Math.floor(totalSeconds / 86400);
+    var hours = Math.floor((totalSeconds % 86400) / 3600);
+    var minutes = Math.floor((totalSeconds % 3600) / 60);
+    var seconds = totalSeconds % 60;
+    cdDays.textContent = pad2(days);
+    cdHours.textContent = pad2(hours);
+    cdMinutes.textContent = pad2(minutes);
+    cdSeconds.textContent = pad2(seconds);
+  }
+
+  function unlockGift(){
+    if (!locked) return;
+    locked = false;
+    if (countdownTimer) { clearInterval(countdownTimer); countdownTimer = null; }
+    lockGate.classList.add('unlocked');
+    armSwipeHint();
+  }
+
+  if (isPreview || Date.now() >= UNLOCK_AT) {
+    locked = false;
+    lockGate.classList.add('unlocked');
+    armSwipeHint();
+  } else {
+    tickCountdown();
+    countdownTimer = setInterval(tickCountdown, 1000);
+  }
+
+  function loadSlide(el){
+    var frame = el.querySelector('iframe');
+    if (frame && !frame.getAttribute('src') && frame.dataset.src) {
+      frame.setAttribute('src', frame.dataset.src);
+    }
+  }
+
+  var LETTER_INDEX = total - 1;
+  var finaleSong = document.getElementById('finaleSong');
+  var songToggleBtn = document.getElementById('songToggleBtn');
+  var songUserPaused = false;
+
+  function updateSongBtnLabel(){
+    if (!songToggleBtn) return;
+    songToggleBtn.textContent = (finaleSong.paused ? '🎵 Play song' : '🎵 Pause song');
+  }
+
+  function tryPlaySong(){
+    if (songUserPaused) return;
+    var p = finaleSong.play();
+    if (p && p.catch) {
+      p.catch(function(){
+        // Autoplay was blocked - leave it paused, the button lets her start it manually.
+      }).then(updateSongBtnLabel);
+    } else {
+      updateSongBtnLabel();
+    }
+  }
+
+  if (songToggleBtn) {
+    songToggleBtn.addEventListener('click', function(){
+      if (finaleSong.paused) {
+        songUserPaused = false;
+        tryPlaySong();
+      } else {
+        songUserPaused = true;
+        finaleSong.pause();
+      }
+      updateSongBtnLabel();
+    });
+  }
+  finaleSong.addEventListener('play', updateSongBtnLabel);
+  finaleSong.addEventListener('pause', updateSongBtnLabel);
+
+  function handleSongForSlide(fromIndex, toIndex){
+    if (toIndex === LETTER_INDEX) {
+      // Arriving at the letter, on a genuine click/tap - safe to autoplay.
+      tryPlaySong();
+    } else if (fromIndex === LETTER_INDEX) {
+      finaleSong.pause();
+    }
+  }
+
+  function updateArrows(){
+    prevArrow.style.visibility = (current === 0) ? 'hidden' : 'visible';
+    nextArrow.style.visibility = (current === total - 1) ? 'hidden' : 'visible';
+  }
+
+  function goTo(index){
+    if (locked || transitioning) return;
+    index = Math.max(0, Math.min(total - 1, index)); // clamp, no wraparound
+    if (index === current) return;
+    transitioning = true;
+
+    var outgoing = slides[current];
+    var incoming = slides[index];
+
+    incoming.style.display = 'block';
+    loadSlide(incoming);
+    // force reflow so the transition triggers
+    void incoming.offsetWidth;
+    incoming.classList.add('active');
+    outgoing.classList.remove('active');
+
+    setTimeout(function(){
+      if (!outgoing.classList.contains('active')) {
+        outgoing.style.display = 'none';
+      }
+      transitioning = false;
+    }, 720);
+
+    dots.forEach(function(d, i){ d.classList.toggle('active', i === index); });
+
+    handleSongForSlide(current, index);
+    current = index;
+    updateArrows();
+
+    if (!hasNavigated) {
+      hasNavigated = true;
+      swipeHint.classList.remove('show');
+    }
+  }
+
+  // Preload the very first slide's iframe
+  loadSlide(slides[0]);
+  updateArrows();
+
+  dots.forEach(function(dot){
+    dot.addEventListener('click', function(){ goTo(parseInt(dot.dataset.index, 10)); });
+  });
+  prevArrow.addEventListener('click', function(){ goTo(current - 1); });
+  nextArrow.addEventListener('click', function(){ goTo(current + 1); });
+
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'ArrowRight' || e.key === 'PageDown') goTo(current + 1);
+    else if (e.key === 'ArrowLeft' || e.key === 'PageUp') goTo(current - 1);
+  });
+
+  // Swipe detection (horizontal-dominant gestures only; vertical scroll inside
+  // a slide, e.g. the letter, is left untouched).
+  var touchStartX = 0, touchStartY = 0, touchActive = false;
+  document.addEventListener('touchstart', function(e){
+    if (!e.touches || !e.touches.length) return;
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+    touchActive = true;
+  }, { passive:true });
+
+  document.addEventListener('touchend', function(e){
+    if (!touchActive) return;
+    touchActive = false;
+    var t = (e.changedTouches && e.changedTouches[0]) || null;
+    if (!t) return;
+    var dx = t.clientX - touchStartX;
+    var dy = t.clientY - touchStartY;
+    if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.4) {
+      if (dx < 0) goTo(current + 1); else goTo(current - 1);
+    }
+  }, { passive:true });
+
+  // Reveal the swipe hint shortly after unlock, hide it once she navigates
+  function armSwipeHint(){
+    setTimeout(function(){
+      if (!hasNavigated) swipeHint.classList.add('show');
+    }, 2600);
+    setTimeout(function(){ swipeHint.classList.remove('show'); }, 9000);
+  }
+
+  document.getElementById('replayAllBtn').addEventListener('click', function(){
+    goTo(0);
+  });
+})();
+</script>
+</body>
+</html>
